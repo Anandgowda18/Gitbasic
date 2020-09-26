@@ -1,0 +1,174 @@
+tcp/ip tcp= transmission control protocol,ip=internet protocol
+5 layers
+1.application layer-this is the layer where user interact,this layer receives data from the user
+2.tcp layer-incoming data from application layer will be in the form of binary data, this data will be broken down into packets
+3.ip-layer-ip will convert packets into frames, frames = source ip + packets + destination IP
+4.data link layer- data link layer dispatches the data to destination ip
+5.physical layer - it is actual physical connection of the machines
+
+TCP is a connection oriented,highly reliable
+Similar to TCP we have one more connection which is less reliable called UDP(user datagram Protoco)
+
+remember:
+what is DNS?
+Domain name service: here each IP address will be mapped to some websites
+like if you give www.youtube.com in chrome this www.youtube.com will be mapped to some IP address by DNS
+
+IP addresses are two type 1 IPV4 2 IPV6
+IP will be dynamic or static:
+
+static IP address won't change, companies like IBM,Google use static IP's
+Dynamic IP's will change like our mobile phones and laptops
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Sockets:
+Python have a standard libary called socket
+socket is base of any network
+
+we have something called port number: port number are like switches
+
+what is server?
+server is a machine(can be computer,hardrive anything) but it should respond to a request.basically servers are one which provide service.
+
+what is client?
+client is also a machine, Client asks for a service.
+
+let us write a simple server and client side program using socket(python).
+
+let us write server side socket programming first.
+--------------------------------------------------------
+
+import socket
+#s = socket.socket(what type of ipv,what type of connection)
+#for ipv4 = socket.INET, for IPv6 socket.INET6
+#for tcp connection socket.STREAM, for UDP connection socket.UDGRAM
+
+s = socket.socket(socket.INET,socket.STREAM)
+
+let us put IP address and poort number to our program
+
+s.bind(server side ip address,9999)
+#port number from 0 to 65535, don't use port number from 0 to 1023 at any cost.also check for the free port number in Server and use it
+
+s.listen(5)
+#due to the above condition we are restricting 5 clients to talk to us at a time
+
+print("waiting for connections")
+
+while True:
+	c,addr = s.accept()
+	print("we are connected to" addr)
+	c.send(b"Hello you are connected to server",utf-8)
+	c.close()
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+socket programming in client side:
+
+import socket
+c = socket.socket(socket.INET,socket.STREAM)
+c.connect((server side ip address,9999))
+print(c.recv(1024).decode())
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+
+RPC-Remote Procedure call.
+
+remote procedure call system enables you to call a function availale on a remote server using same syntax
+which is used when calling a function library
+
+we have one library called as XMLRPC in python to  so it
+
+XMLRPC.client-for client side
+XMLRPC.server-for server side
+
+we will write a server side program using XMLRPC.
+
+from XMLRPC.server import SimpleXMLRPCSever
+from XMLRPC.server import SimpleXMLRPCRequestHandler
+
+# restricting a path
+class RequestHandler(SimpleXMLRPCRequestHandler):
+	rpc_paths=('/RPC2')
+
+#server side config
+
+with SimpleXMLRPCServer(('server ip',port),requesthandler = RequestHandler) as server:
+	server.register_introspection_function()
+
+server.register_function(pow)
+
+def adder_function(x,y):
+	return x+y
+server.register_function(adder_function,"add")
+
+class MyFunc:
+	def mul(self,x,y):
+		return x*y
+server.register_instance(Myfunc())
+------------------------------------------------------------------------------------------------------------------------------------------------------
+let us write client side program for rpc
+
+import XMLRPC.client
+
+c = XMLRPC.client.serverproxy('server ip',port)
+print(c.pow(2,3))# o/p 8(2**3)
+print(c.add(2,3))#5
+print(c.mul(2,3))#6
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+websocket-websocket provide two way(Full duplex)  communication over a single TCP connection
+Remember - websocket is built on asyncio(asynchronous i/o)
+
+server side
+
+import asyncio
+import websockets
+
+async def hello(websocket, path):
+    name = await websocket.recv()
+    print(f"< {name}")
+
+    greeting = f"Hello {name}!"
+
+    await websocket.send(greeting)
+    print(f"> {greeting}")
+
+start_server = websockets.serve(hello, "localhost", 8765)
+
+asyncio.get_event_loop().run_until_complete(start_server)
+asyncio.get_event_loop().run_forever()
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+client side
+
+import asyncio
+import websockets
+
+async def hello():
+    uri = "ws://localhost:8765"
+    async with websockets.connect(uri) as websocket:
+        name = input("What's your name? ")
+
+        await websocket.send(name)
+        print(f"> {name}")
+
+        greeting = await websocket.recv()
+        print(f"< {greeting}")
+
+asyncio.get_event_loop().run_until_complete(hello())
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+HTTP - Hyper Text Transfer Protocol
+HTML-Hyper Text Markup Language
+
+we have HTTP library,urllib library, requests library for accessing HTTP
+
+BSD-Berkeley Software Distribution(it's licensing of software)
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
